@@ -1,0 +1,38 @@
+---
+
+  - name: add autoscaling group to load balancer
+    command: aws autoscaling attach-load-balancers --auto-scaling-group-name "{{ asg_deploy_uuid }}" --load-balancer-names "{{ item }}"
+    with_items: asg_deploy_stack_elbs
+    register: aws_command
+    failed_when: "'client error' in aws_command.stdout"
+
+  - name: wait for elbs to be attached
+    ec2_asg:
+      name: "{{ asg_deploy_uuid }}"
+    register: asg_deploy_active_elbs
+    until:  asg_deploy_stack_elbs | intersect(asg_deploy_active_elbs.load_balancers) == asg_deploy_stack_elbs
+    delay: 10
+    retries: 120
+
+  - name: find autoscaling groups to decommission
+    ec2_asg_find:
+      region: "{{ asg_deploy_aws_region }}"
+      name_regex: "{{ asg_deploy_name }}.*"
+      sort: yes
+      sort_end: -1
+    register: asg_deploy_decomm_asg
+
+  - name: ensure decommisioning autoscaling groups removed from load balancers
+    command: aws autoscaling detach-load-balancers --auto-scaling-group-name "{{ item.0.name }}" --load-balancer-names "{{ item.1 }}"
+    register: aws_command
+    with_nested: 
+      - "{{asg_deploy_decomm_asg.results}}"
+      - "{{asg_deploy_stack_elbs}}"
+    failed_when: "'client error' in aws_command.stdout"
+
+  - name: wait for elbs to be detached
+    ec2_asg:
+      name: "{{ item.name }}"
+    register: asg_deploy_active_elbs
+    with_items: asg_deploy_decomm_asg.results
+    until: asg_deploy_stack_elbs | intersect(asg_deploy_active_elbs.load_balancers) == []

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+ENV={{asg_deploy_app_env}}
+
+ansible-playbook {{asg_deploy_app_deploy_directory}}/shared/instance-config.yml -e env=$ENV
