@@ -1,0 +1,27 @@
+---
+
+  - name: set time epoch for deploy
+    set_fact:
+      asg_deploy_epoch: "{{ansible_date_time.epoch}}"
+    when: asg_deploy_epoch is not defined
+    tags: always
+
+  - include: create-temp-elb.yml
+    when: deploy
+    tags: elb
+
+  - include: create-lc.yml
+    when: deploy
+    tags: lc
+
+  - include: create-asg.yml
+    when: deploy
+    tags: asg
+
+  - include: go-live.yml
+    when: golive
+    tags: golive
+
+  - include: clean-up.yml
+    tags: clean
+    when: clean
