@@ -52,6 +52,7 @@
       ami_tags: 
         Stack: "{{ asg_deploy_app_stack }}"
         Layer: "{{ asg_deploy_app_layer }}"
+        Type: 'deploy'
       owner: self
       sort: name
       sort_end: -5
