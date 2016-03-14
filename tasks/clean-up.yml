@@ -1,18 +1,23 @@
 ---
 
   - name: remove new autoscaling group from temp load balancer
-    command: aws autoscaling detach-load-balancers --auto-scaling-group-name "{{asg_deploy_uuid}}" --load-balancer-names "{{ asg_deploy_temp_elb_name }}"
+    command: aws autoscaling --region "{{ asg_deploy_aws_region }}" detach-load-balancers --auto-scaling-group-name "{{asg_deploy_uuid}}" --load-balancer-names "{{ asg_deploy_temp_elb_name }}"
     register: aws_command
     failed_when: "'client error' in aws_command.stdout"
 
+  - debug: var=aws_command
+    when: debug
+
   - name: wait for elbs to be detached
     ec2_asg:
+      region: "{{ asg_deploy_aws_region }}"
       name: "{{ asg_deploy_uuid }}"
     register: asg_deploy_active_elbs
     until: asg_deploy_temp_elb_name | intersect(asg_deploy_active_elbs.load_balancers) == []
 
   - name: remove temporary load balancer
     ec2_elb_lb:
+      region: "{{ asg_deploy_aws_region }}"
       name: "{{ asg_deploy_temp_elb_name }}"
       state: absent
 
@@ -29,39 +34,39 @@
       region: "{{ asg_deploy_aws_region }}"
       name: "{{ item.name }}"
       state: absent
-    with_items: decomm_asg.results
+    with_items: "{{ decomm_asg.results }}"
 
-  - name: find all but last 2 launch configs
+  - name: find all but last 5 launch configs
     ec2_lc_find:
       region: "{{ asg_deploy_aws_region }}"
       name_regex: "{{ asg_deploy_name }}.*"
       sort: yes
-      sort_end: -2
+      sort_end: -5
     register: decomm_lc
 
-  - name: remove all but last 2 launch configs
+  - name: remove all but last 5 launch configs
     ec2_lc:
-      region: "{{ context.aws_region }}"
+      region: "{{ asg_deploy_aws_region }}"
       name: "{{ item.name }}"
       state: absent
-    with_items: decomm_lc.results
+    with_items: "{{ decomm_lc.results }}"
 
-  - name: find all but last 5 deploy AMIs
+  - name: find all but last 5 AMIs of Type==code, matching this stack and layer
     ec2_ami_find:
-      region: "{{ context.aws_region }}"
-      ami_tags: 
-        Stack: "{{ asg_deploy_app_stack }}"
-        Layer: "{{ asg_deploy_app_layer }}"
-        Type: 'deploy'
+      region: "{{ asg_deploy_aws_region }}"
+      ami_tags:
+        Stack: "{{ asg_deploy_stack }}"
+        Layer: "{{ asg_deploy_layer }}"
+        Type: 'code'
       owner: self
       sort: name
       sort_end: -5
     register: decomm_ami
 
-  - name: remove all but last 5 deploy AMIs
+  - name: remove list of AMIs
     ec2_ami:
-      region: "{{ context.aws_region }}"
+      region: "{{ asg_deploy_aws_region }}"
       image_id: "{{ item.ami_id }}"
       delete_snapshot: yes
       state: absent
-    with_items: decomm_ami.results
+    with_items: "{{ decomm_ami.results }}"
