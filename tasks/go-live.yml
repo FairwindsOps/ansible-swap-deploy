@@ -1,16 +1,17 @@
 ---
 
   - name: add autoscaling group to load balancer
-    command: aws autoscaling attach-load-balancers --auto-scaling-group-name "{{ asg_deploy_uuid }}" --load-balancer-names "{{ item }}"
-    with_items: asg_deploy_stack_elbs
+    command: aws autoscaling --region "{{ asg_deploy_aws_region }}" attach-load-balancers --auto-scaling-group-name "{{ asg_deploy_uuid }}" --load-balancer-names "{{ item }}"
+    with_items: "{{ asg_deploy_elbs }}"
     register: aws_command
     failed_when: "'client error' in aws_command.stdout"
 
   - name: wait for elbs to be attached
     ec2_asg:
+      region: "{{ asg_deploy_aws_region }}"
       name: "{{ asg_deploy_uuid }}"
     register: asg_deploy_active_elbs
-    until:  asg_deploy_stack_elbs | intersect(asg_deploy_active_elbs.load_balancers) == asg_deploy_stack_elbs
+    until:  ( asg_deploy_elbs | intersect(asg_deploy_active_elbs.load_balancers) ) == asg_deploy_elbs
     delay: 10
     retries: 120
 
@@ -23,16 +24,17 @@
     register: asg_deploy_decomm_asg
 
   - name: remove to be decommisioned autoscaling groups from load balancers
-    command: aws autoscaling detach-load-balancers --auto-scaling-group-name "{{ item.0.name }}" --load-balancer-names "{{ item.1 }}"
+    command: aws autoscaling --region "{{ asg_deploy_aws_region }}" detach-load-balancers --auto-scaling-group-name "{{ item.0.name }}" --load-balancer-names "{{ item.1 }}"
     register: aws_command
-    with_nested: 
+    with_nested:
       - "{{asg_deploy_decomm_asg.results}}"
-      - "{{asg_deploy_stack_elbs}}"
+      - "{{asg_deploy_elbs}}"
     failed_when: "'client error' in aws_command.stdout"
 
   - name: wait for elbs to be detached
     ec2_asg:
+      region: "{{ asg_deploy_aws_region }}"
       name: "{{ item.name }}"
     register: asg_deploy_active_elbs
     with_items: asg_deploy_decomm_asg.results
-    until: asg_deploy_stack_elbs | intersect(asg_deploy_active_elbs.load_balancers) == []
+    until: ( asg_deploy_elbs | intersect(asg_deploy_active_elbs.load_balancers) ) == []
