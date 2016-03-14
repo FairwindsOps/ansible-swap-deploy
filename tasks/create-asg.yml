@@ -22,7 +22,8 @@
         - Name:   "{{ asg_deploy_uuid }}"
 
   - name: wait for in_service_instances >= asg_deploy_asg_desired_capacity
-    ec2_asg: 
+    ec2_asg:
+      region: "{{ asg_deploy_aws_region }}"
       name: "{{ asg_deploy_uuid }}"
     register: asg_deploy_asg
     until: "{{asg_deploy_asg.in_service_instances|int}} >= {{asg_deploy_asg_desired_capacity|int}}"
