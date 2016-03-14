@@ -6,6 +6,9 @@
     when: asg_deploy_epoch is not defined
     tags: always
 
+  - debug: var=asg_deploy_epoch
+    when: debug
+
   - include: create-temp-elb.yml
     when: deploy
     tags: elb
