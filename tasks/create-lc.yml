@@ -9,6 +9,7 @@
       security_groups:        "{{ asg_deploy_lc_security_groups }}"
       instance_type:          "{{ asg_deploy_lc_default_instance_size }}"
       instance_profile_name:  "{{ asg_deploy_lc_instance_profile_name }}"
+      volumes:                "{{ asg_deploy_lc_volumes |default(omit) }}"
       user_data:              "{{ lookup('template', './user-data.sh.j2') }}"
       assign_public_ip:       'no'
     register: asg_deploy_lc
