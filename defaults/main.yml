@@ -1,0 +1,91 @@
+---
+
+# Note: commented variable names need to be set
+
+##
+# identifiers
+##
+# asg_deploy_env: ""
+# asg_deploy_stack: ""
+# asg_deploy_layer: ""
+
+##
+# actions
+##
+deploy: yes
+golive: yes
+clean: yes
+
+##
+# aws
+##
+asg_deploy_aws_region: "{{ aws_region }}"
+asg_deploy_aws_key_name: "{{ aws_key_name }}"
+
+##
+# deploy
+##
+# asg_deploy_image_id: ""
+asg_deploy_name: "{{ asg_deploy_env }}-{{ asg_deploy_stack }}-{{ asg_deploy_layer }}"
+# The timestamp (epoch) is combined with the asg_deploy_name to create the uuid
+asg_deploy_uuid: "{{ asg_deploy_name }}-{{asg_deploy_epoch}}"
+
+##
+# temp elb settings
+##
+# security groups to set for the temp ELB
+# typically, "{{ hostvars[inventory_hostname][env + '_presentation' ] }}"
+# asg_deploy_temp_elb_security_group_ids: ""
+asg_deploy_temp_elb_name: "temp-{{ asg_deploy_env }}-{{ asg_deploy_epoch }}"
+asg_deploy_temp_elb_subnets: "{{ asg_deploy_asg_vpc_zone_identifier }}"
+asg_deploy_temp_elb_listeners:
+  - protocol: tcp
+    load_balancer_port: '80'
+    instance_port: '8000'
+asg_deploy_temp_elb_health_check:
+  ping_protocol: 'tcp'
+  ping_port: "{{ asg_deploy_temp_elb_health_check_ping_port|default(3000) }}"
+  response_timeout: '5'
+  interval: '10'
+  unhealthy_threshold: '6'
+  healthy_threshold: '2'
+
+##
+# elb
+##
+# The ELB(s) that will receive the new ASG
+asg_deploy_elbs:
+  - "{{ asg_deploy_name }}"
+
+##
+# lc
+##
+# the security group(s) that the LC's new instances will be set with
+# typically, "{{ hostvars[inventory_hostname][env + '_application' ] }}"
+# asg_deploy_lc_security_groups: ""
+asg_deploy_lc_default_instance_size: "t2.medium"
+asg_deploy_lc_instance_profile_name: "{{ asg_deploy_env }}-{{ asg_deploy_stack }}-{{ asg_deploy_layer }}"
+
+##
+# asg
+##
+# list of VPC subnets to use for both the temp ELB and the new ASG
+# Ex.
+# asg_vpc_zone_identifier:
+#   - 'subnet-qqq'
+#   - 'subnet-qqq'
+#   - 'subnet-qqq'
+# asg_deploy_asg_vpc_zone_identifier: ""
+# asg_deploy_asg_availability_zones: ""
+asg_deploy_asg_health_check_period: '60'
+asg_deploy_asg_health_check_type: 'ELB'
+asg_deploy_asg_replace_all_instances: 'yes'
+asg_deploy_asg_replace_batch_size: '1'
+asg_deploy_asg_min_size: '2'
+asg_deploy_asg_max_size: '4'
+asg_deploy_asg_desired_capacity: '2'
+
+# for the lc's user data
+asg_deploy_post_instantiantion_playbook_path: '/opt/app/post-instantiation.yml'
+
+debug: False

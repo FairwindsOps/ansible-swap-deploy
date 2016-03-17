@@ -1,0 +1,13 @@
+---
+
+  - name: create temporary elb for new deploy
+    ec2_elb_lb:
+      region:             "{{ asg_deploy_aws_region }}"
+      name:               "{{ asg_deploy_temp_elb_name }}"
+      state:              'present'
+      scheme:             'internal'
+      subnets:            "{{ asg_deploy_temp_elb_subnets }}"
+      security_group_ids: "{{ asg_deploy_temp_elb_security_group_ids }}"
+      listeners:          "{{ asg_deploy_temp_elb_listeners }}"
+      health_check:       "{{ asg_deploy_temp_elb_health_check }}"
+    register: asg_deploy_temp_elb
