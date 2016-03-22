@@ -1,4 +1,6 @@
 ---
+  - fail: msg="asg_deploy_name must be populated for go-live step"
+    when: asg_deploy_name is undefined or asg_deploy_name == ""
 
   - name: add autoscaling group to load balancer
     command: aws autoscaling --region "{{ asg_deploy_aws_region }}" attach-load-balancers --auto-scaling-group-name "{{ asg_deploy_uuid }}" --load-balancer-names "{{ item }}"
