@@ -1,4 +1,6 @@
 ---
+  - fail: msg="asg_deploy_name must be populated for cleanup step"
+    when: asg_deploy_name is undefined or asg_deploy_name == ""
 
   - name: remove new autoscaling group from temp load balancer
     command: aws autoscaling --region "{{ asg_deploy_aws_region }}" detach-load-balancers --auto-scaling-group-name "{{asg_deploy_uuid}}" --load-balancer-names "{{ asg_deploy_temp_elb_name }}"
