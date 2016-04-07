@@ -1,5 +1,6 @@
 #!/bin/bash
 
 ENV={{asg_deploy_env}}
+ENV_BUCKET={{asg_deploy_env_bucket}}
 
-ansible-playbook {{asg_deploy_post_instantiantion_playbook_path}} -e env=$ENV
+ansible-playbook {{asg_deploy_post_instantiantion_playbook_path}} -e env=$ENV -e env_bucket=$ENV_BUCKET
