@@ -7,9 +7,7 @@
     failed_when: "'client error' in aws_command.stdout"
 
   - name: wait for elbs to be attached
-    ec2_asg:
-      region: "{{ asg_deploy_aws_region }}"
-      name: "{{ asg_deploy_uuid }}"
+    ec2_asg: "{{asg_deploy_ec2_asg_parameters}}"
     register: asg_deploy_active_elbs
     until:  ( asg_deploy_elbs | intersect(asg_deploy_active_elbs.load_balancers) ) == asg_deploy_elbs
     delay: 10

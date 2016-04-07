@@ -90,5 +90,27 @@ asg_deploy_asg_desired_capacity: '2'
 
 # for the lc's user data
 asg_deploy_post_instantiantion_playbook_path: '/opt/app/post-instantiation.yml'
+# asg_deploy_env_bucket: ''
+
+asg_deploy_ec2_asg_parameters:
+  region:                 "{{ asg_deploy_aws_region }}"
+  name:                   "{{ asg_deploy_uuid }}"
+  launch_config_name:     "{{ asg_deploy_uuid }}"
+  load_balancers:         "{{ asg_deploy_temp_elb_name }}"
+  health_check_period:    "{{ asg_deploy_asg_health_check_period }}"
+  health_check_type:      "{{ asg_deploy_asg_health_check_type }}"
+  replace_all_instances:  "{{ asg_deploy_asg_replace_all_instances }}"
+  replace_batch_size:     "{{ asg_deploy_asg_replace_batch_size }}"
+  min_size:               "{{ asg_deploy_asg_min_size }}"
+  max_size:               "{{ asg_deploy_asg_max_size }}"
+  desired_capacity:       "{{ asg_deploy_asg_desired_capacity }}"
+  vpc_zone_identifier:    "{{ asg_deploy_asg_vpc_zone_identifier }}"
+  availability_zones:     "{{ asg_deploy_asg_availability_zones }}"
+  tags:
+    - Env:    "{{ asg_deploy_env }}"
+    - Stack:  "{{ asg_deploy_stack }}"
+    - Layer:  "{{ asg_deploy_layer }}"
+    - Name:   "{{ asg_deploy_uuid }}"
+
 
 debug: False
