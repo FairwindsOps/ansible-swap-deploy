@@ -23,7 +23,7 @@
   - name: wait for elbs to be detached
     shell: aws autoscaling --region "{{ asg_deploy_aws_region }}" describe-auto-scaling-groups --auto-scaling-group-names "{{asg_deploy_uuid}}"
     register: describe_asg
-    until: asg_deploy_temp_elb_name | intersect( (describe_asg.stdout | from_json).AutoScalingGroups[0].LoadBalancerNames) == []
+    until: asg_deploy_temp_elb_name not in (describe_asg.stdout | from_json).AutoScalingGroups[0].LoadBalancerNames
 
   - name: remove temporary load balancer
     ec2_elb_lb:
