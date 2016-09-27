@@ -45,7 +45,7 @@ asg_deploy_temp_elb_listeners:
 asg_deploy_temp_elb_health_check:
   ping_protocol: "{{ asg_deploy_temp_elb_health_check_ping_protocol|default('tcp') }}"
   ping_port: "{{ asg_deploy_temp_elb_health_check_ping_port|default(3000) }}"
-  ping_path: "{{ asg_deploy_temp_elb_health_check_ping_path|default('/') }}"
+  ping_path: "{{ asg_deploy_temp_elb_health_check_ping_path|default('/index.html') }}"
   response_timeout: '5'
   interval: '10'
   unhealthy_threshold: '6'
