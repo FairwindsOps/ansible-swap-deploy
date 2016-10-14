@@ -8,4 +8,4 @@
     register: asg_deploy_asg
     until: "{{asg_deploy_asg.in_service_instances|int}} >= {{asg_deploy_asg_desired_capacity|int}}"
     delay: 10
-    retries: 120
+    retries: 180
