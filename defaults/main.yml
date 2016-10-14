@@ -107,6 +107,7 @@ asg_deploy_ec2_asg_parameters:
   desired_capacity:       "{{ asg_deploy_asg_desired_capacity }}"
   vpc_zone_identifier:    "{{ asg_deploy_asg_vpc_zone_identifier }}"
   availability_zones:     "{{ asg_deploy_asg_availability_zones }}"
+  wait_timeout:           "{{ asg_deploy_asg_wait_timeout|default(700) }}"
   tags:
     - Env:    "{{ asg_deploy_env }}"
     - Stack:  "{{ asg_deploy_stack }}"

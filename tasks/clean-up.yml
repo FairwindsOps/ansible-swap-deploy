@@ -2,29 +2,6 @@
   - fail: msg="asg_deploy_name must be populated for cleanup step"
     when: asg_deploy_name is undefined or asg_deploy_name == ""
 
-  - name: remove new autoscaling group from temp load balancer
-    command: aws autoscaling --region "{{ asg_deploy_aws_region }}" detach-load-balancers --auto-scaling-group-name "{{asg_deploy_uuid}}" --load-balancer-names "{{ asg_deploy_temp_elb_name }}"
-    register: aws_command
-    failed_when: "'client error' in aws_command.stdout"
-
-  - debug: var=aws_command
-    when: debug
-
-  # - name: wait for elbs to be detached
-  #   ec2_asg:
-  #     region: "{{ asg_deploy_aws_region }}"
-  #     name: "{{ asg_deploy_uuid }}"
-  #   register: asg_deploy_active_elbs
-  #   until: asg_deploy_temp_elb_name | intersect(asg_deploy_active_elbs.load_balancers) == []
-  #
-
-    # this version of the "wait for elbs to be detached" task purposely avoids the use of the above ec2_asg module so as not to trigger the
-    # creation of an asg when it only needs to be queried.
-  - name: wait for elbs to be detached
-    shell: aws autoscaling --region "{{ asg_deploy_aws_region }}" describe-auto-scaling-groups --auto-scaling-group-names "{{asg_deploy_uuid}}"
-    register: describe_asg
-    until: asg_deploy_temp_elb_name not in (describe_asg.stdout | from_json).AutoScalingGroups[0].LoadBalancerNames
-
   - name: remove temporary load balancer
     ec2_elb_lb:
       region: "{{ asg_deploy_aws_region }}"
