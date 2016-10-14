@@ -13,7 +13,7 @@
     register: asg_deploy_active_elbs
     until:  ( asg_deploy_elbs | intersect(asg_deploy_active_elbs.load_balancers) ) == asg_deploy_elbs
     delay: 10
-    retries: 120
+    retries: 180
 
   - name: remove new autoscaling group from temp load balancer
     command: aws autoscaling --region "{{ asg_deploy_aws_region }}" detach-load-balancers --auto-scaling-group-name "{{asg_deploy_uuid}}" --load-balancer-names "{{ asg_deploy_temp_elb_name }}"
