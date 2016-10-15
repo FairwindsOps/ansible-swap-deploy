@@ -1,0 +1,59 @@
+---
+  - fail: msg="asg_deploy_name must be populated for cleanup step"
+    when: asg_deploy_name is undefined or asg_deploy_name == ""
+
+  - name: remove temporary load balancer
+    ec2_elb_lb:
+      region: "{{ asg_deploy_aws_region }}"
+      name: "{{ asg_deploy_temp_elb_name }}"
+      state: absent
+
+  - name: find all but last (active) autoscaling group
+    ec2_asg_find:
+      region: "{{ asg_deploy_aws_region }}"
+      name_regex: "{{ asg_deploy_name }}.*"
+      sort: yes
+      sort_end: -1
+    register: decomm_asg
+
+  - name: remove all but last (active) autoscaling group
+    ec2_asg:
+      region: "{{ asg_deploy_aws_region }}"
+      name: "{{ item.name }}"
+      state: absent
+    with_items: "{{ decomm_asg.results }}"
+
+  - name: find all but last 5 launch configs
+    ec2_lc_find:
+      region: "{{ asg_deploy_aws_region }}"
+      name_regex: "{{ asg_deploy_name }}.*"
+      sort: yes
+      sort_end: -5
+    register: decomm_lc
+
+  - name: remove all but last 5 launch configs
+    ec2_lc:
+      region: "{{ asg_deploy_aws_region }}"
+      name: "{{ item.name }}"
+      state: absent
+    with_items: "{{ decomm_lc.results }}"
+
+  - name: find all but last 5 AMIs of Type==code, matching this stack and layer
+    ec2_ami_find:
+      region: "{{ asg_deploy_aws_region }}"
+      ami_tags:
+        Stack: "{{ asg_deploy_stack }}"
+        Layer: "{{ asg_deploy_layer }}"
+        Type: 'code'
+      owner: self
+      sort: name
+      sort_end: -5
+    register: decomm_ami
+
+  - name: remove list of AMIs
+    ec2_ami:
+      region: "{{ asg_deploy_aws_region }}"
+      image_id: "{{ item.ami_id }}"
+      delete_snapshot: yes
+      state: absent
+    with_items: "{{ decomm_ami.results }}"

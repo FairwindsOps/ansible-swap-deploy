@@ -1,0 +1,15 @@
+---
+
+  - name: create launch config for new deploy
+    ec2_lc:
+      region:                 "{{ asg_deploy_aws_region }}"
+      key_name:               "{{ asg_deploy_aws_key_name }}"
+      name:                   "{{ asg_deploy_uuid }}"
+      image_id:               "{{ asg_deploy_image_id }}"
+      security_groups:        "{{ asg_deploy_lc_security_groups }}"
+      instance_type:          "{{ asg_deploy_lc_default_instance_size }}"
+      instance_profile_name:  "{{ asg_deploy_lc_instance_profile_name }}"
+      volumes:                "{{ asg_deploy_lc_volumes |default(omit) }}"
+      user_data:              "{{ lookup('template', './user-data.sh.j2') }}"
+      assign_public_ip:       'no'
+    register: asg_deploy_lc

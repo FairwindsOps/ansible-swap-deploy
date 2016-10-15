@@ -1,0 +1,11 @@
+---
+
+  - name: create autoscaling group for new deploy
+    ec2_asg: "{{asg_deploy_ec2_asg_parameters}}"
+
+  - name: wait for in_service_instances >= asg_deploy_asg_desired_capacity
+    ec2_asg: "{{asg_deploy_ec2_asg_parameters}}"
+    register: asg_deploy_asg
+    until: "{{asg_deploy_asg.in_service_instances|int}} >= {{asg_deploy_asg_desired_capacity|int}}"
+    delay: 10
+    retries: 180
