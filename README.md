@@ -79,6 +79,14 @@ The temp ELB is placed in the same subnet as the new ASG, asg_deploy_asg_vpc_zon
 
 ```
 
+*Note:* The Ansible `ec2_lc` module does not allow setting of the tenancy. See https://github.com/ansible/ansible-modules-core/issues/3425 for more details. This role works around that by running the aws cli command instead of the module if the `asg_deploy_lc_default_instance_tenancy` is set. If this is used make sure to use JSON string in the layer_configs such as `volumes: '[ { "DeviceName" : "/dev/sda1", "Ebs" : { "VolumeSize" : 30 } } ]'` and then reference it and turn it into JSON in the above example like this:
+
+```
+      asg_deploy_lc_volumes:                        "{{ layer_config.volumes | to_json }}"
+```
+
+All this is to avoid various wacky disappearances of the quotes.
+
 
 # Sequence
 

@@ -1,6 +1,6 @@
 ---
 
-  - name: create launch config for new deploy
+  - name: create launch config for new deploy via ec2_lc
     ec2_lc:
       region:                 "{{ asg_deploy_aws_region }}"
       key_name:               "{{ asg_deploy_aws_key_name }}"
@@ -13,3 +13,19 @@
       user_data:              "{{ lookup('template', './user-data.sh.j2') }}"
       assign_public_ip:       'no'
     register: asg_deploy_lc
+    when: asg_deploy_lc_default_instance_tenancy == false
+
+  - name: create launch config for new deploy via aws cli
+    command: aws --region "{{ asg_deploy_aws_region }}" autoscaling create-launch-configuration \
+      --launch-configuration-name "{{ asg_deploy_uuid }}" \
+      --image-id "{{ asg_deploy_image_id }}" \
+      --key-name "{{ asg_deploy_aws_key_name }}" \
+      --security-groups {{ asg_deploy_lc_security_groups }} \
+      --instance-type "{{ asg_deploy_lc_default_instance_size }}" \
+      --no-associate-public-ip-address \
+      --iam-instance-profile "{{ asg_deploy_lc_instance_profile_name }}" \
+      --placement-tenancy "{{ asg_deploy_lc_default_instance_tenancy }}" \
+      --block-device-mappings '{{ asg_deploy_lc_volumes | from_json }}' \
+      --user-data '{{ lookup('template', './user-data.sh.j2') }}'
+    register: asg_deploy_lc
+    when: asg_deploy_lc_default_instance_tenancy != false
