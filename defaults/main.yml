@@ -66,6 +66,7 @@ asg_deploy_elbs:
 # asg_deploy_lc_security_groups: ""
 asg_deploy_lc_default_instance_size: "t2.medium"
 asg_deploy_lc_instance_profile_name: "{{ asg_deploy_env }}-{{ asg_deploy_stack }}-{{ asg_deploy_layer }}"
+asg_deploy_lc_default_instance_tenancy: false
 # unlike the other commented variables here, asg_deploy_lc_volumes may be left unset, in which case "volumes" for the
 # created launch configuration will be unset, triggering the default. See tasks/create-lc.yml
 # asg_deploy_lc_volumes:

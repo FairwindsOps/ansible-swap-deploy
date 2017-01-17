@@ -1,5 +1,8 @@
 ---
 
+  - debug: msg='{{asg_deploy_lc_volumes }}'
+  # - fail: msg="stopp"
+
   - name: set time epoch for deploy
     set_fact:
       asg_deploy_epoch: "{{ansible_date_time.epoch}}"
