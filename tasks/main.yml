@@ -24,6 +24,10 @@
     when: deploy
     tags: asg
 
+  - include: cloudwatch.yml
+    when: deploy
+    tags: cloudwatch
+
   - include: go-live.yml
     when: golive
     tags: golive
