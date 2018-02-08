@@ -57,3 +57,17 @@
       delete_snapshot: yes
       state: absent
     with_items: "{{ decomm_ami.results }}"
+
+  - name: destroy alarms that match decommissioning deploys
+    ec2_metric_alarm:
+      state: absent
+      region: "{{ asg_deploy_aws_region }}"
+      name: "{{ item.0.name }}-{{item.1.name}}"
+    when: decomm_asgs != []
+    with_nested:
+      - "{{decomm_asgs}}"
+      - "{{asg_deploy_cloudwatch_alarms}}"
+    register: clean_alarms
+    until: clean_alarms|success
+    retries: 5
+    delay: "{{ 10|random(start=3, step=1) }}"
