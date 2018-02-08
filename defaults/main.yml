@@ -131,6 +131,7 @@ asg_deploy_cloudwatch_alarms:
       unit: 'Percent'
       description: 'This will alarm when cpu usage average is higher than 70% for 5 minutes'
       sns: yes
+      actions: []
   - name: 'network-high'
     alarm:
       metric: 'NetworkOut'
@@ -143,6 +144,7 @@ asg_deploy_cloudwatch_alarms:
       unit: 'Bytes'
       description: 'This will alarm when network out average is lower than 30M for 5 minutes'
       sns: no
+      actions: []
   - name: 'network-low'
     alarm:
       metric: 'NetworkOut'
@@ -155,3 +157,4 @@ asg_deploy_cloudwatch_alarms:
       unit: 'Bytes'
       description: 'This will alarm when network out average is higher than 100k for 5 minutes'
       sns: yes
+      actions: []
