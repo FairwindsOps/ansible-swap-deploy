@@ -117,3 +117,41 @@ asg_deploy_ec2_asg_parameters:
 
 
 debug: False
+
+asg_deploy_cloudwatch_alarms:
+  - name: 'cpu-high'
+    alarm:
+      metric: 'CPUUtilization'
+      namespace: 'AWS/EC2'
+      statistic: 'Average'
+      comparison: '>='
+      threshold: '70.0'
+      period: '60'
+      evaluation_periods: '5'
+      unit: 'Percent'
+      description: 'This will alarm when cpu usage average is higher than 70% for 5 minutes'
+      sns: yes
+  - name: 'network-high'
+    alarm:
+      metric: 'NetworkOut'
+      namespace: 'AWS/EC2'
+      statistic: 'Average'
+      comparison: '>='
+      threshold: '30000000.0'
+      period: '60'
+      evaluation_periods: '5'
+      unit: 'Bytes'
+      description: 'This will alarm when network out average is lower than 30M for 5 minutes'
+      sns: no
+  - name: 'network-low'
+    alarm:
+      metric: 'NetworkOut'
+      namespace: 'AWS/EC2'
+      statistic: 'Average'
+      comparison: '<'
+      threshold: '100000.0'
+      period: '60'
+      evaluation_periods: '5'
+      unit: 'Bytes'
+      description: 'This will alarm when network out average is higher than 100k for 5 minutes'
+      sns: yes
