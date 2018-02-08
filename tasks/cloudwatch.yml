@@ -1,0 +1,23 @@
+---
+
+  - name: create alarms
+    ec2_metric_alarm:
+      state: present
+      region: "{{ asg_deploy_aws_region }}"
+      name: "{{ asg_deploy_uuid }}-{{item.0.name}}"
+      metric: "{{item.0.alarm.metric}}"
+      namespace: "{{item.0.alarm.namespace}}"
+      statistic: "{{item.0.alarm.statistic}}"
+      comparison: "{{item.0.alarm.comparison}}"
+      threshold: "{{item.0.alarm.threshold}}"
+      period: "{{item.0.alarm.period}}"
+      evaluation_periods: "{{item.0.alarm.evaluation_periods}}"
+      unit: "{{item.0.alarm.unit}}"
+      description: "{{item.0.alarm.description}}"
+      dimensions: 
+        AutoScalingGroupName: "{{ asg_deploy_uuid }}"
+      alarm_actions: ["{{ item.1.arn }}"]
+    with_together: 
+      - "{{asg_deploy_cloudwatch_alarms}}"
+    when: item.0.name == item.1.item.name
+    tags: alarms
