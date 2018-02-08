@@ -63,7 +63,7 @@
       state: absent
       region: "{{ asg_deploy_aws_region }}"
       name: "{{ item.0.name }}-{{item.1.name}}"
-    when: decomm_asgs != []
+    when: decomm_asg.results != []
     with_nested:
       - "{{decomm_asg.results}}"
       - "{{asg_deploy_cloudwatch_alarms}}"
