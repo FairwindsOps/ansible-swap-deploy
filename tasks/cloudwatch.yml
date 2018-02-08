@@ -16,7 +16,7 @@
       description: "{{item.alarm.description}}"
       dimensions: 
         AutoScalingGroupName: "{{ asg_deploy_uuid }}"
-      alarm_actions: "{{item.alarm.action}}"
+      alarm_actions: "{{item.alarm.actions}}"
     with_items: 
       - "{{asg_deploy_cloudwatch_alarms}}"
     tags: alarms
