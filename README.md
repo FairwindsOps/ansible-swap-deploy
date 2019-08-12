@@ -47,9 +47,9 @@ The temp ELB is placed in the same subnet as the new ASG, asg_deploy_asg_vpc_zon
 
   roles:
 
-    - role: reactiveops.get-vpc-facts-master
+    - role: fairwinds.get-vpc-facts-master
 
-    - role: reactiveops.ansible-swap-deploy
+    - role: fairwinds.ansible-swap-deploy
       deploy: yes
       golive: yes
       clean: yes
